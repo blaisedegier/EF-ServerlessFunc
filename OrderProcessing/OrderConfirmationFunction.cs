@@ -1,7 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.EntityFrameworkCore;
-using Part3.Models;
+using ServerlessFunc.Models;
 
 namespace OrderProcessing
 {

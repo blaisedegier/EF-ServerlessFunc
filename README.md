@@ -24,19 +24,19 @@ The solution is composed of two projects that work together:
 
 | Project             | Type                                 | Responsibility                                                                                                       |
 | ------------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
-| **Part3**           | ASP.NET Core MVC Web App             | Product catalog, user authentication (Identity), order placement, email notifications, admin dashboard               |
+| **ServerlessFunc**  | ASP.NET Core MVC Web App             | Product catalog, user authentication (Identity), order placement, email notifications, admin dashboard               |
 | **OrderProcessing** | Azure Functions v4 (Isolated Worker) | Serverless HTTP APIs for order/payment confirmation, Durable Functions orchestrator for long-running order workflows |
 
 **Flow:**
 
 ```text
-Browser ──► Part3 (MVC) ──► Places order & sends confirmation email
+Browser ──► ServerlessFunc (MVC) ──► Places order & sends confirmation email
                 │
                 ▼
          User clicks link
                 │
                 ▼
-         Part3 calls ──► OrderProcessing (Azure Functions)
+         ServerlessFunc calls ──► OrderProcessing (Azure Functions)
                               ├── ConfirmOrder
                               ├── ConfirmPayment
                               └── OrderProcessingOrchestrator (Durable)
@@ -68,9 +68,9 @@ Browser ──► Part3 (MVC) ──► Places order & sends confirmation email
 
 ```text
 EF-ServerlessFunc/
-├── Part3.sln                          # Visual Studio solution
+├── ServerlessFunc.sln                 # Visual Studio solution
 │
-├── Part3/                             # ASP.NET Core MVC Web Application
+├── ServerlessFunc/                    # ASP.NET Core MVC Web Application
 │   ├── Program.cs                     # App startup, DI, Identity, seed data
 │   ├── Controllers/
 │   │   ├── HomeController.cs          # Landing page & product listing
@@ -120,7 +120,7 @@ cd EF-ServerlessFunc
 
 ### 2. Configure the web app
 
-Update connection strings and the Functions base URL in `Part3/appsettings.json` (or preferably use [User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets)):
+Update connection strings and the Functions base URL in `ServerlessFunc/appsettings.json` (or preferably use [User Secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets)):
 
 ```json
 {
@@ -150,7 +150,7 @@ Create `OrderProcessing/local.settings.json` (this file is gitignored):
 ### 4. Apply database migrations
 
 ```bash
-cd Part3
+cd ServerlessFunc
 dotnet ef database update --context ApplicationDbContext
 dotnet ef database update --context KhumaloCraftContext
 ```
@@ -162,7 +162,7 @@ On first run the application also seeds initial **categories** and **products** 
 **Terminal 1 - Web App:**
 
 ```bash
-cd Part3
+cd ServerlessFunc
 dotnet run
 ```
 
@@ -191,7 +191,7 @@ On first startup the app creates a default admin user:
 
 ## Configuration
 
-### Web App (`Part3`)
+### Web App (`ServerlessFunc`)
 
 | Setting                               | Location                          | Description                                        |
 | ------------------------------------- | --------------------------------- | -------------------------------------------------- |
@@ -214,10 +214,10 @@ On first startup the app creates a default admin user:
 
 The application uses **two EF Core contexts** against the same SQL Server database:
 
-| Context                | Purpose                                          | Migrations Path          |
-| ---------------------- | ------------------------------------------------ | ------------------------ |
-| `ApplicationDbContext` | ASP.NET Core Identity (users, roles, claims)     | `Part3/Data/Migrations/` |
-| `KhumaloCraftContext`  | Business entities (Products, Categories, Orders) | `Part3/Migrations/`      |
+| Context                | Purpose                                          | Migrations Path                   |
+| ---------------------- | ------------------------------------------------ | --------------------------------- |
+| `ApplicationDbContext` | ASP.NET Core Identity (users, roles, claims)     | `ServerlessFunc/Data/Migrations/` |
+| `KhumaloCraftContext`  | Business entities (Products, Categories, Orders) | `ServerlessFunc/Migrations/`      |
 
 ### Key entities
 
@@ -229,7 +229,7 @@ Order (OrderStatus, PaymentStatus, OrderDate, UserEmail, ProductId)
 ### Adding a new migration
 
 ```bash
-cd Part3
+cd ServerlessFunc
 dotnet ef migrations add <MigrationName> --context KhumaloCraftContext
 dotnet ef database update --context KhumaloCraftContext
 ```
@@ -305,14 +305,14 @@ The `OrderProcessingOrchestrator` implements a long-running workflow using Azure
 
 Both projects include Visual Studio **Azure publish profiles** for deployment:
 
-- **Part3** → Azure Web App (`Part3-WebApp`)
-- **OrderProcessing** → Azure Function App (`Part3-Function`)
+- **ServerlessFunc** → Azure Web App
+- **OrderProcessing** → Azure Function App
 
 ### Manual deployment
 
 ```bash
 # Publish the web app
-cd Part3
+cd ServerlessFunc
 dotnet publish -c Release -o ./publish
 
 # Publish the Functions app

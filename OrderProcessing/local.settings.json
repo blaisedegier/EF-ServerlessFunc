@@ -3,6 +3,6 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-    "SqlConnectionString": "Server=tcp:part3server.database.windows.net,1433;Initial Catalog=KhumaloCraft;Persist Security Info=False;User ID=Part3Admin;Password=Admin@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
+    "SqlConnectionString": "Server=tcp:ServerlessFuncserver.database.windows.net,1433;Initial Catalog=KhumaloCraft;Persist Security Info=False;User ID=ServerlessFuncAdmin;Password=Admin@123;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
   }
 }
